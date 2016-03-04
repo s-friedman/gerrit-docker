@@ -1,9 +1,11 @@
   #Section http_ldap
-  if [ "${AUTH_TYPE}" = 'HTTP_LDAP' ]; then
+  if [ "${AUTH_TYPE}" = 'HTTP_LDAP' -o ${AUTH_TYPE} = "LDAP" ]; then
     set_gerrit_config auth.type "${AUTH_TYPE}"
     set_gerrit_config auth.gitBasicAuth true
-    set_gerrit_config auth.httpHeader "X-Remote-User"
-    set_gerrit_config auth.trustContainerAuth true
+    if [ "${AUTH_TYPE}" = 'HTTP_LDAP' ]; then
+      set_gerrit_config auth.httpHeader "X-Remote-User"
+      set_gerrit_config auth.trustContainerAuth true
+    fi
     [ -z "${LDAP_SERVER}" ]                   || set_gerrit_config ldap.server "ldap://${LDAP_SERVER}"
     [ -z "${LDAP_SSLVERIFY}" ]                || set_gerrit_config ldap.sslVerify "${LDAP_SSLVERIFY}"
     [ -z "${LDAP_GROUPSVISIBLETOALL}" ]       || set_gerrit_config ldap.groupsVisibleToAll "${LDAP_GROUPSVISIBLETOALL}"

@@ -4,6 +4,8 @@ GERRIT_WEBURL=${1:-http://127.0.0.1/gerrit}
 LDAP_SERVER=${2:-127.0.0.1}
 LDAP_ACCOUNTBASE=${3:-ou=accounts,dc=demo,dc=com}
 HTTPD_LISTENURL=${4:-http://*:8080}
+NGINX_USE_HTTPS=${5:-1}
+
 GERRIT_NAME=${GERRIT_NAME:-gerrit}
 GERRIT_VOLUME=${GERRIT_VOLUME:-gerrit-volume}
 PG_GERRIT_NAME=${PG_GERRIT_NAME:-pg-gerrit}
@@ -33,6 +35,12 @@ docker run \
 ${GERRIT_IMAGE_NAME} \
 echo "Create Gerrit volume."
 
+if [ ${NGINX_USE_HTTPS} -eq 0 ]; then
+    AUTH_TYPE=HTTP_LDAP
+else
+    AUTH_TYPE=LDAP
+fi
+
 # Start Gerrit.
 docker run \
 --name ${GERRIT_NAME} \
@@ -43,7 +51,7 @@ docker run \
 -e WEBURL=${GERRIT_WEBURL} \
 -e HTTPD_LISTENURL=${HTTPD_LISTENURL} \
 -e DATABASE_TYPE=postgresql \
--e AUTH_TYPE=HTTP_LDAP \
+-e AUTH_TYPE=${AUTH_TYPE} \
 -e LDAP_SERVER=${LDAP_SERVER} \
 -e LDAP_ACCOUNTBASE=${LDAP_ACCOUNTBASE} \
 -d ${GERRIT_IMAGE_NAME}
